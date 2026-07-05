@@ -1,6 +1,7 @@
 name: Guardian Connector
 version: "0.8.0"
 slug: guardian_connector
+image: "ghcr.io/sergioarcerito1998/guardian-connector-{arch}"
 description: Local read-only discovery and secure sync agent for Guardian
 startup: application
 boot: auto
@@ -17,9 +18,3 @@ schema:
   interval: int(300,86400)
   github_token: password
   github_repository: str
-
-
-
-
-
-
