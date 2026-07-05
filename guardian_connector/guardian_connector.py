@@ -144,6 +144,46 @@ def main() -> int:
                 f"{entity_diagnostic_summary['by_category']}"
             )
 
+            try:
+                from connector.core_diagnostics import (
+                    attach_core_diagnostics,
+                    fetch_core_diagnostics,
+                )
+
+                core_diagnostics = fetch_core_diagnostics(
+                    args.url,
+                    args.token,
+                )
+
+                passport = attach_core_diagnostics(
+                    passport,
+                    core_diagnostics,
+                )
+
+                core_summary = core_diagnostics["summary"]
+
+                print(
+                    f"Guardian Repairs: "
+                    f"{core_summary['repairs']}"
+                )
+                print(
+                    f"Guardian System Log entries: "
+                    f"{core_summary['system_log_entries']}"
+                )
+                print(
+                    f"Guardian Repairs available: "
+                    f"{core_summary['repairs_available']}"
+                )
+                print(
+                    f"Guardian System Log available: "
+                    f"{core_summary['system_log_available']}"
+                )
+            except Exception as exc:
+                print(
+                    f"Guardian Core Diagnostics fallback: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+
             diagnostic_summary = passport[
                 "diagnostic_inventory"
             ]["summary"]
