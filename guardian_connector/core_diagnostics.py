@@ -174,6 +174,23 @@ def fetch_core_diagnostics(
         repairs = _normalize_repairs(repairs_result)
         system_log = _normalize_system_log(system_log_result)
 
+        raw_system_log = []
+
+        if isinstance(system_log_result, dict):
+            raw_system_log = (
+                system_log_result.get("entries")
+                or system_log_result.get("logs")
+                or []
+            )
+        elif isinstance(system_log_result, list):
+            raw_system_log = system_log_result
+
+        raw_system_log = [
+            entry
+            for entry in raw_system_log[:MAX_SYSTEM_LOG_ENTRIES]
+            if isinstance(entry, dict)
+        ]
+
         return {
             "summary": {
                 "repairs": len(repairs),
@@ -187,6 +204,7 @@ def fetch_core_diagnostics(
             },
             "repairs": repairs,
             "system_log": system_log,
+            "_raw_system_log": raw_system_log,
         }
     finally:
         ws.close()

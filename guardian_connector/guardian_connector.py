@@ -155,9 +155,36 @@ def main() -> int:
                     args.token,
                 )
 
+                raw_system_log = core_diagnostics.pop(
+                    "_raw_system_log",
+                    [],
+                )
+
                 passport = attach_core_diagnostics(
                     passport,
                     core_diagnostics,
+                )
+
+                from connector.error_fingerprints import (
+                    enrich_core_diagnostics,
+                )
+
+                passport = enrich_core_diagnostics(
+                    passport,
+                    raw_system_log,
+                )
+
+                fingerprint_summary = passport[
+                    "core_diagnostics"
+                ]["error_fingerprints"]["summary"]
+
+                print(
+                    f"Guardian Error Fingerprints: "
+                    f"{fingerprint_summary['entries']}"
+                )
+                print(
+                    f"Guardian Error Categories: "
+                    f"{fingerprint_summary['by_category']}"
                 )
 
                 core_summary = core_diagnostics["summary"]

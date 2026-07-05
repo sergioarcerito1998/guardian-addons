@@ -16,6 +16,7 @@ COPY privacy_v2.py /app/connector/privacy_v2.py
 COPY diagnostic_inventory.py /app/connector/diagnostic_inventory.py
 COPY entity_diagnostics.py /app/connector/entity_diagnostics.py
 COPY core_diagnostics.py /app/connector/core_diagnostics.py
+COPY error_fingerprints.py /app/connector/error_fingerprints.py
 
 RUN touch /app/connector/__init__.py
 
