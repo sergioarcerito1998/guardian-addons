@@ -1,0 +1,15 @@
+name: Guardian Connector
+version: "0.1.0"
+slug: guardian_connector
+description: Local read-only discovery agent for Guardian
+startup: application
+boot: auto
+init: false
+homeassistant_api: true
+arch:
+  - amd64
+  - aarch64
+options:
+  interval: 3600
+schema:
+  interval: int(300,86400)
