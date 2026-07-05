@@ -14,6 +14,7 @@ COPY sync_runtime.py /app/connector/sync_runtime.py
 COPY inventory_v2.py /app/connector/inventory_v2.py
 COPY privacy_v2.py /app/connector/privacy_v2.py
 COPY diagnostic_inventory.py /app/connector/diagnostic_inventory.py
+COPY entity_diagnostics.py /app/connector/entity_diagnostics.py
 
 RUN touch /app/connector/__init__.py
 

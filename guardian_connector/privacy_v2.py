@@ -63,6 +63,9 @@ def sanitize_passport_v2(
         sanitized.get("diagnostic_inventory", {}).get(
             "disabled_entities", []
         ),
+        sanitized.get("entity_diagnostics", {}).get(
+            "entities", []
+        ),
     ]
 
     for section in entity_sections:
@@ -116,6 +119,22 @@ def sanitize_passport_v2(
 
     diagnostic = sanitized.get("diagnostic_inventory", {})
 
+    entity_diagnostics = sanitized.get("entity_diagnostics", {})
+    summary = entity_diagnostics.get("summary", {})
+
+    by_device = summary.get("by_device", {})
+    sanitized_by_device = {}
+
+    for device_id, count in by_device.items():
+        if device_id == "no_device":
+            sanitized_by_device[device_id] = count
+        else:
+            sanitized_by_device[
+                pseudonymize(device_id, salt)
+            ] = count
+
+    summary["by_device"] = sanitized_by_device
+
     for device in diagnostic.get("devices", []):
         if not isinstance(device, dict):
             continue
@@ -136,7 +155,7 @@ def sanitize_passport_v2(
         )
 
     sanitized["privacy"] = {
-        "version": "2.1.0",
+        "version": "2.2.0",
         "pseudonymized_entity_count": pseudonymized_entities,
     }
 

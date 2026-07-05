@@ -122,6 +122,28 @@ def main() -> int:
                 inventory,
             )
 
+            from connector.entity_diagnostics import (
+                build_entity_diagnostics,
+            )
+
+            passport = build_entity_diagnostics(
+                passport,
+                inventory,
+            )
+
+            entity_diagnostic_summary = passport[
+                "entity_diagnostics"
+            ]["summary"]
+
+            print(
+                f"Guardian Entity Diagnostics: "
+                f"{entity_diagnostic_summary['entities']}"
+            )
+            print(
+                f"Guardian Entity Diagnostic categories: "
+                f"{entity_diagnostic_summary['by_category']}"
+            )
+
             diagnostic_summary = passport[
                 "diagnostic_inventory"
             ]["summary"]
