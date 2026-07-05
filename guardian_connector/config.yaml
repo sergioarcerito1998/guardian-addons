@@ -1,7 +1,7 @@
 name: Guardian Connector
-version: "0.2.1"
+version: "0.3.0"
 slug: guardian_connector
-description: Local read-only discovery agent for Guardian
+description: Local read-only discovery and secure sync agent for Guardian
 startup: application
 boot: auto
 init: false
@@ -11,7 +11,9 @@ arch:
   - aarch64
 options:
   interval: 3600
+  github_token: ""
+  github_repository: "sergioarcerito1998/guardian"
 schema:
   interval: int(300,86400)
-
-
+  github_token: password
+  github_repository: str

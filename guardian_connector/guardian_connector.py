@@ -116,6 +116,29 @@ def main() -> int:
         print(f"Guardian Sync hash: {sync_result['hash']}")
         print(f"Guardian Sync queue size: {sync_result['queue_size']}")
         print(f"Guardian Public Passport: {sync_result['public_passport_path']}")
+
+        options_path = output.parent / "options.json"
+
+        if options_path.exists():
+            options = json.loads(options_path.read_text(encoding="utf-8"))
+            github_token = options.get("github_token", "")
+            github_repository = options.get("github_repository", "")
+
+            if github_token and github_repository:
+                from connector.sync_runtime import flush_sync_queue
+
+                transport_result = flush_sync_queue(
+                    SyncPipeline(output.parent).queue,
+                    github_token,
+                    github_repository,
+                )
+
+                print(
+                    f"Guardian Sync uploaded: {transport_result['uploaded']}"
+                )
+                print(
+                    f"Guardian Sync remaining: {transport_result['remaining']}"
+                )
     except (ConnectorError, OSError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
