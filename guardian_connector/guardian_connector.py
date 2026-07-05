@@ -111,6 +111,11 @@ def main() -> int:
         from connector.sync_pipeline import SyncPipeline
 
         sync_result = SyncPipeline(output.parent).process(passport)
+
+        print(f"Guardian Sync changed: {sync_result['changed']}")
+        print(f"Guardian Sync hash: {sync_result['hash']}")
+        print(f"Guardian Sync queue size: {sync_result['queue_size']}")
+        print(f"Guardian Public Passport: {sync_result['public_passport_path']}")
     except (ConnectorError, OSError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
