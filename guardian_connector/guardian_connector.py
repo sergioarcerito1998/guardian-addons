@@ -174,6 +174,52 @@ def main() -> int:
                     raw_system_log,
                 )
 
+                from connector.diagnostic_history import (
+                    persist_diagnostic_history,
+                )
+
+                current_fingerprints = passport[
+                    "core_diagnostics"
+                ]["error_fingerprints"]["entries"]
+
+                diagnostic_history, history_summary = (
+                    persist_diagnostic_history(
+                        "/data/diagnostic-history.json",
+                        current_fingerprints,
+                    )
+                )
+
+                passport[
+                    "core_diagnostics"
+                ]["diagnostic_history"] = {
+                    "summary": history_summary,
+                    "entries": sorted(
+                        diagnostic_history[
+                            "fingerprints"
+                        ].values(),
+                        key=lambda item: (
+                            item.get("active") is not True,
+                            item.get("category", "other"),
+                            item.get("fingerprint", ""),
+                        ),
+                    ),
+                }
+
+                passport["schema_version"] = "3.2.0"
+
+                print(
+                    f"Guardian Diagnostic History: "
+                    f"{history_summary['fingerprints']}"
+                )
+                print(
+                    f"Guardian Diagnostic Active: "
+                    f"{history_summary['active']}"
+                )
+                print(
+                    f"Guardian Diagnostic Resolved: "
+                    f"{history_summary['resolved']}"
+                )
+
                 fingerprint_summary = passport[
                     "core_diagnostics"
                 ]["error_fingerprints"]["summary"]
