@@ -113,6 +113,28 @@ def main() -> int:
             inventory = fetch_inventory(args.url, args.token)
             passport = enrich_passport(passport, inventory)
 
+            from connector.diagnostic_inventory import (
+                build_diagnostic_inventory,
+            )
+
+            passport = build_diagnostic_inventory(
+                passport,
+                inventory,
+            )
+
+            diagnostic_summary = passport[
+                "diagnostic_inventory"
+            ]["summary"]
+
+            print(
+                f"Guardian Diagnostic registry-only: "
+                f"{diagnostic_summary['registry_only']}"
+            )
+            print(
+                f"Guardian Diagnostic disabled: "
+                f"{diagnostic_summary['disabled']}"
+            )
+
             print(
                 f"Guardian Inventory v2 entities: "
                 f"{len(inventory['entity_registry'])}"

@@ -17,79 +17,127 @@ SENSITIVE_ENTITY_FRAGMENTS = (
 )
 
 
+def _sanitize_entity_id(entity_id: str, salt: str) -> str:
+    sensitive = (
+        entity_id.startswith(SENSITIVE_ENTITY_PREFIXES)
+        or any(
+            fragment in entity_id
+            for fragment in SENSITIVE_ENTITY_FRAGMENTS
+        )
+    )
+
+    if not sensitive:
+        return entity_id
+
+    domain = entity_id.split(".", 1)[0]
+    return f"{domain}.{pseudonymize(entity_id, salt)}"
+
+
+def _sanitize_identifier(value: Any, salt: str) -> Any:
+    if isinstance(value, str) and value:
+        return pseudonymize(value, salt)
+
+    if isinstance(value, list):
+        return [
+            pseudonymize(item, salt)
+            if isinstance(item, str) and item
+            else item
+            for item in value
+        ]
+
+    return value
+
+
 def sanitize_passport_v2(
     passport: dict[str, Any],
     salt: str,
 ) -> dict[str, Any]:
     sanitized = deepcopy(passport)
+    pseudonymized_entities = 0
 
-    entity_id_map: dict[str, str] = {}
+    entity_sections = [
+        sanitized.get("entities", []),
+        sanitized.get("diagnostic_inventory", {}).get(
+            "registry_only_entities", []
+        ),
+        sanitized.get("diagnostic_inventory", {}).get(
+            "disabled_entities", []
+        ),
+    ]
 
-    for entity in sanitized.get("entities", []):
-        entity_id = entity.get("entity_id")
+    for section in entity_sections:
+        for entity in section:
+            if not isinstance(entity, dict):
+                continue
 
-        if not isinstance(entity_id, str):
-            continue
+            entity_id = entity.get("entity_id")
+            if isinstance(entity_id, str):
+                replacement = _sanitize_entity_id(entity_id, salt)
 
-        sensitive = (
-            entity_id.startswith(SENSITIVE_ENTITY_PREFIXES)
-            or any(
-                fragment in entity_id
-                for fragment in SENSITIVE_ENTITY_FRAGMENTS
-            )
-        )
+                if replacement != entity_id:
+                    pseudonymized_entities += 1
 
-        if sensitive:
-            domain = entity_id.split(".", 1)[0]
-            replacement = f"{domain}.{pseudonymize(entity_id, salt)}"
-            entity_id_map[entity_id] = replacement
-            entity["entity_id"] = replacement
+                entity["entity_id"] = replacement
 
-        for field in (
-            "config_entry_id",
-            "device_id",
-            "area_id",
-        ):
-            value = entity.get(field)
-            if isinstance(value, str) and value:
-                entity[field] = pseudonymize(value, salt)
+            for field in (
+                "config_entry_id",
+                "device_id",
+                "area_id",
+            ):
+                entity[field] = _sanitize_identifier(
+                    entity.get(field),
+                    salt,
+                )
 
     inventory = sanitized.get("inventory", {})
 
-    devices = inventory.get("devices", [])
-    for device in devices:
+    for device in inventory.get("devices", []):
         if not isinstance(device, dict):
             continue
 
         for field in ("id", "area_id", "config_entries"):
-            value = device.get(field)
-
-            if isinstance(value, str) and value:
-                device[field] = pseudonymize(value, salt)
-            elif isinstance(value, list):
-                device[field] = [
-                    pseudonymize(item, salt)
-                    if isinstance(item, str)
-                    else item
-                    for item in value
-                ]
+            device[field] = _sanitize_identifier(
+                device.get(field),
+                salt,
+            )
 
         for field in ("name", "name_by_user", "serial_number"):
             device.pop(field, None)
 
-    areas = inventory.get("areas", [])
-    for area in areas:
+    for area in inventory.get("areas", []):
         if not isinstance(area, dict):
             continue
 
-        if isinstance(area.get("area_id"), str):
-            area["area_id"] = pseudonymize(area["area_id"], salt)
-
+        area["area_id"] = _sanitize_identifier(
+            area.get("area_id"),
+            salt,
+        )
         area.pop("name", None)
 
+    diagnostic = sanitized.get("diagnostic_inventory", {})
+
+    for device in diagnostic.get("devices", []):
+        if not isinstance(device, dict):
+            continue
+
+        for field in ("id", "area_id", "config_entries"):
+            device[field] = _sanitize_identifier(
+                device.get(field),
+                salt,
+            )
+
+    for area in diagnostic.get("areas", []):
+        if not isinstance(area, dict):
+            continue
+
+        area["area_id"] = _sanitize_identifier(
+            area.get("area_id"),
+            salt,
+        )
+
     sanitized["privacy"] = {
-        "version": "2.0.0",
-        "pseudonymized_entity_count": len(entity_id_map),
+        "version": "2.1.0",
+        "pseudonymized_entity_count": pseudonymized_entities,
     }
 
     return sanitized
