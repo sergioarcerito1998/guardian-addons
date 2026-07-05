@@ -106,11 +106,40 @@ def main() -> int:
     try:
         passport = build_passport(args.url, args.token)
         output = Path(args.output)
-        output.write_text(json.dumps(passport, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+        try:
+            from connector.inventory_v2 import enrich_passport, fetch_inventory
+
+            inventory = fetch_inventory(args.url, args.token)
+            passport = enrich_passport(passport, inventory)
+
+            print(
+                f"Guardian Inventory v2 entities: "
+                f"{len(inventory['entity_registry'])}"
+            )
+            print(
+                f"Guardian Inventory v2 devices: "
+                f"{len(inventory['device_registry'])}"
+            )
+            print(
+                f"Guardian Inventory v2 areas: "
+                f"{len(inventory['area_registry'])}"
+            )
+        except Exception as exc:
+            print(
+                f"Guardian Inventory v2 fallback: "
+                f"{type(exc).__name__}: {exc}"
+            )
+
+        output.write_text(
+            json.dumps(passport, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
 
         from connector.sync_pipeline import SyncPipeline
 
-        sync_result = SyncPipeline(output.parent).process(passport)
+        sync_pipeline = SyncPipeline(output.parent)
+        sync_result = sync_pipeline.process(passport)
 
         print(f"Guardian Sync changed: {sync_result['changed']}")
         print(f"Guardian Sync hash: {sync_result['hash']}")
@@ -128,7 +157,7 @@ def main() -> int:
                 from connector.sync_runtime import flush_sync_queue
 
                 transport_result = flush_sync_queue(
-                    SyncPipeline(output.parent).queue,
+                    sync_pipeline.queue,
                     github_token,
                     github_repository,
                 )

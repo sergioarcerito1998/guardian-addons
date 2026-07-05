@@ -18,6 +18,15 @@ class SyncPipeline:
 
     def process(self, passport: dict[str, Any]) -> dict[str, Any]:
         public_passport = sanitize_passport(passport)
+
+        if passport.get("schema_version") == "2.0.0":
+            from connector.privacy_v2 import sanitize_passport_v2
+
+            public_passport = sanitize_passport_v2(
+                public_passport,
+                "guardian-local-stable-v2",
+            )
+
         digest = passport_hash(public_passport)
 
         previous_digest = None
