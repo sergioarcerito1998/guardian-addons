@@ -18,8 +18,11 @@ class HomeAssistantWebSocketError(RuntimeError):
 def _websocket_url(base_url: str) -> str:
     parsed = urllib.parse.urlparse(base_url)
     scheme = "wss" if parsed.scheme == "https" else "ws"
+    base_path = parsed.path.rstrip("/")
+    websocket_path = f"{base_path}/api/websocket"
+
     return urllib.parse.urlunparse(
-        (scheme, parsed.netloc, "/api/websocket", "", "", "")
+        (scheme, parsed.netloc, websocket_path, "", "", "")
     )
 
 

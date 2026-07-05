@@ -1,5 +1,5 @@
 name: Guardian Connector
-version: "0.4.0"
+version: "0.4.1"
 slug: guardian_connector
 description: Local read-only discovery and secure sync agent for Guardian
 startup: application
@@ -17,4 +17,5 @@ schema:
   interval: int(300,86400)
   github_token: password
   github_repository: str
+
 
