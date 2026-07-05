@@ -10,7 +10,8 @@ INTERVAL="$(bashio::config 'interval')"
 mkdir -p /data
 
 while true; do
-    python3 /app/guardian_connector.py --output /data/house-passport.json
+    python3 -m connector.guardian_connector --output /data/house-passport.json
     bashio::log.info "House Passport generated successfully."
     sleep "${INTERVAL}"
 done
+

@@ -107,6 +107,10 @@ def main() -> int:
         passport = build_passport(args.url, args.token)
         output = Path(args.output)
         output.write_text(json.dumps(passport, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+        from connector.sync_pipeline import SyncPipeline
+
+        sync_result = SyncPipeline(output.parent).process(passport)
     except (ConnectorError, OSError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1

@@ -1,5 +1,5 @@
 name: Guardian Connector
-version: "0.1.0"
+version: "0.2.0"
 slug: guardian_connector
 description: Local read-only discovery agent for Guardian
 startup: application
@@ -13,3 +13,4 @@ options:
   interval: 3600
 schema:
   interval: int(300,86400)
+
