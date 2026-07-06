@@ -261,7 +261,7 @@ def main() -> int:
                 )
 
                 passport["health_report"] = health_report
-                passport["schema_version"] = "3.4.0"
+                passport["schema_version"] = "3.5.0"
 
                 print(
                     f"Guardian Health Status: "
