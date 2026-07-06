@@ -112,8 +112,11 @@ def update_diagnostic_history(
             continue
 
         if fingerprint not in current_by_fingerprint:
-            record["active"] = False
-            record["resolved_at"] = now
+            if record.get("active") is True:
+                record["active"] = False
+                record["resolved_at"] = now
+
+            record["consecutive_runs_seen"] = 0
 
     for fingerprint, entry in current_by_fingerprint.items():
         count = entry.get("count", 0)
@@ -135,11 +138,17 @@ def update_diagnostic_history(
                 "resolved_at": None,
                 "active": True,
                 "runs_seen": 1,
+                "consecutive_runs_seen": 1,
                 "observations": 1,
                 "last_count": count,
                 "peak_count": count,
             }
             continue
+
+        was_active = existing.get("active") is True
+        previous_consecutive_runs = int(
+            existing.get("consecutive_runs_seen", 0)
+        )
 
         existing["category"] = entry.get(
             "category",
@@ -155,6 +164,14 @@ def update_diagnostic_history(
         existing["resolved_at"] = None
         existing["active"] = True
         existing["runs_seen"] = int(existing.get("runs_seen", 0)) + 1
+
+        if was_active:
+            existing["consecutive_runs_seen"] = (
+                previous_consecutive_runs + 1
+            )
+        else:
+            existing["consecutive_runs_seen"] = 1
+
         existing["observations"] = int(existing.get("observations", 0)) + 1
         existing["last_count"] = count
         existing["peak_count"] = max(
