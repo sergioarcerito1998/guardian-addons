@@ -252,7 +252,29 @@ def main() -> int:
                     ),
                 }
 
-                passport["schema_version"] = "3.3.0"
+                from connector.health_report import build_health_report
+
+                previous_health_report = passport.get("health_report")
+                health_report = build_health_report(
+                    stable_issue_history,
+                    previous_report=previous_health_report,
+                )
+
+                passport["health_report"] = health_report
+                passport["schema_version"] = "3.4.0"
+
+                print(
+                    f"Guardian Health Status: "
+                    f"{health_report['status']}"
+                )
+                print(
+                    f"Guardian Health Score: "
+                    f"{health_report['health_score']}"
+                )
+                print(
+                    f"Guardian Health Active Issues: "
+                    f"{health_report['summary']['active']}"
+                )
 
                 print(
                     f"Guardian Stable Issues: "

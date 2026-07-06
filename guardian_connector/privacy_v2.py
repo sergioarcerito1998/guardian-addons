@@ -160,3 +160,6 @@ def sanitize_passport_v2(
     }
 
     return sanitized
+
+# Guardian v3.4 health_report is derived exclusively from already-sanitized
+# stable diagnostic issue metadata and contains no raw log messages.

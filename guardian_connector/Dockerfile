@@ -19,6 +19,8 @@ COPY core_diagnostics.py /app/connector/core_diagnostics.py
 COPY error_fingerprints.py /app/connector/error_fingerprints.py
 COPY diagnostic_history.py /app/connector/diagnostic_history.py
 COPY issue_identity.py /app/connector/issue_identity.py
+COPY issue_priority.py /app/connector/issue_priority.py
+COPY health_report.py /app/connector/health_report.py
 
 RUN touch /app/connector/__init__.py
 
