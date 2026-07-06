@@ -189,6 +189,27 @@ def main() -> int:
                     )
                 )
 
+                from connector.issue_identity import (
+                    migrate_history_to_stable_issues,
+                )
+
+                stable_issue_history = (
+                    migrate_history_to_stable_issues(
+                        diagnostic_history
+                    )
+                )
+
+                stable_issues = stable_issue_history["issues"]
+
+                active_issues = sum(
+                    issue.get("active") is True
+                    for issue in stable_issues.values()
+                )
+                resolved_issues = sum(
+                    issue.get("active") is False
+                    for issue in stable_issues.values()
+                )
+
                 passport[
                     "core_diagnostics"
                 ]["diagnostic_history"] = {
@@ -205,7 +226,46 @@ def main() -> int:
                     ),
                 }
 
-                passport["schema_version"] = "3.2.0"
+                passport[
+                    "core_diagnostics"
+                ]["stable_issues"] = {
+                    "schema_version": (
+                        stable_issue_history[
+                            "issue_identity_schema_version"
+                        ]
+                    ),
+                    "summary": {
+                        "issues": len(stable_issues),
+                        "active": active_issues,
+                        "resolved": resolved_issues,
+                        "fingerprints": history_summary[
+                            "fingerprints"
+                        ],
+                    },
+                    "entries": sorted(
+                        stable_issues.values(),
+                        key=lambda item: (
+                            item.get("active") is not True,
+                            item.get("category", "other"),
+                            item.get("issue_key", ""),
+                        ),
+                    ),
+                }
+
+                passport["schema_version"] = "3.3.0"
+
+                print(
+                    f"Guardian Stable Issues: "
+                    f"{len(stable_issues)}"
+                )
+                print(
+                    f"Guardian Stable Issues Active: "
+                    f"{active_issues}"
+                )
+                print(
+                    f"Guardian Stable Issues Resolved: "
+                    f"{resolved_issues}"
+                )
 
                 print(
                     f"Guardian Diagnostic History: "
