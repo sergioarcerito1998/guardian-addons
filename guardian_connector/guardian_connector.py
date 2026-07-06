@@ -253,15 +253,41 @@ def main() -> int:
                 }
 
                 from connector.health_report import build_health_report
+                from connector.health_timeline import (
+                    load_health_state,
+                    persist_health_state,
+                )
 
-                previous_health_report = passport.get("health_report")
+                health_state_path = (
+                    self.data_dir / "diagnostic-health-state.json"
+                )
+
+                health_state = load_health_state(health_state_path)
+                previous_health_report = health_state.get(
+                    "previous_report"
+                )
+
                 health_report = build_health_report(
                     stable_issue_history,
-                    previous_report=previous_health_report,
+                    previous_report=(
+                        previous_health_report
+                        if isinstance(previous_health_report, dict)
+                        else None
+                    ),
+                )
+
+                health_state, health_report = persist_health_state(
+                    health_state_path,
+                    health_report,
                 )
 
                 passport["health_report"] = health_report
-                passport["schema_version"] = "3.5.0"
+                passport["health_timeline"] = {
+                    "schema_version": health_state["schema_version"],
+                    "runs": health_state["runs"],
+                    "entries": health_state["timeline"],
+                }
+                passport["schema_version"] = "3.6.0"
 
                 print(
                     f"Guardian Health Status: "
@@ -270,6 +296,30 @@ def main() -> int:
                 print(
                     f"Guardian Health Score: "
                     f"{health_report['health_score']}"
+                )
+                print(
+                    f"Guardian Health Trend: "
+                    f"{health_report['trend']}"
+                )
+                print(
+                    f"Guardian Health Score Delta: "
+                    f"{health_report['health_score_delta']}"
+                )
+                print(
+                    f"Guardian Health New Issues: "
+                    f"{len(health_report['new_issue_keys'])}"
+                )
+                print(
+                    f"Guardian Health Cleared Issues: "
+                    f"{len(health_report['cleared_issue_keys'])}"
+                )
+                print(
+                    f"Guardian Health Priority Changes: "
+                    f"{len(health_report['priority_changes'])}"
+                )
+                print(
+                    f"Guardian Health Timeline Entries: "
+                    f"{len(health_state['timeline'])}"
                 )
                 print(
                     f"Guardian Health Active Issues: "

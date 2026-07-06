@@ -21,6 +21,7 @@ COPY diagnostic_history.py /app/connector/diagnostic_history.py
 COPY issue_identity.py /app/connector/issue_identity.py
 COPY issue_priority.py /app/connector/issue_priority.py
 COPY health_report.py /app/connector/health_report.py
+COPY health_timeline.py /app/connector/health_timeline.py
 
 RUN touch /app/connector/__init__.py
 

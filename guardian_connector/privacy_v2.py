@@ -163,3 +163,6 @@ def sanitize_passport_v2(
 
 # Guardian v3.4 health_report is derived exclusively from already-sanitized
 # stable diagnostic issue metadata and contains no raw log messages.
+
+# Guardian v3.6 health_timeline contains bounded derived diagnostic metadata
+# only; raw log messages are never persisted in timeline snapshots.
