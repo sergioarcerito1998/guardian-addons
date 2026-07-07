@@ -287,7 +287,41 @@ def main() -> int:
                     "runs": health_state["runs"],
                     "entries": health_state["timeline"],
                 }
-                passport["schema_version"] = "3.6.0"
+
+                from connector.autonomy_runtime import run_autonomy_cycle
+
+                autonomy_result = run_autonomy_cycle(
+                    health_report,
+                    output.parent / "autonomy-operation-journal.json",
+                )
+
+                passport["autonomy"] = autonomy_result
+                passport["schema_version"] = "4.0.0"
+
+                print(
+                    f"Guardian Autonomy Plans: "
+                    f"{autonomy_result['summary']['plans']}"
+                )
+                print(
+                    f"Guardian Autonomy Allowed: "
+                    f"{autonomy_result['summary']['allowed']}"
+                )
+                print(
+                    f"Guardian Autonomy Manual Required: "
+                    f"{autonomy_result['summary']['manual_required']}"
+                )
+                print(
+                    f"Guardian Autonomy Executed: "
+                    f"{autonomy_result['summary']['executed']}"
+                )
+                print(
+                    f"Guardian Autonomy Changed: "
+                    f"{autonomy_result['summary']['changed']}"
+                )
+                print(
+                    f"Guardian Autonomy Verified: "
+                    f"{autonomy_result['summary']['verified']}"
+                )
 
                 print(
                     f"Guardian Health Status: "

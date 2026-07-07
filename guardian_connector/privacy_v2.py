@@ -166,3 +166,8 @@ def sanitize_passport_v2(
 
 # Guardian v3.6 health_timeline contains bounded derived diagnostic metadata
 # only; raw log messages are never persisted in timeline snapshots.
+
+# Guardian v4.0 autonomy exports only derived plans, policy decisions,
+# execution outcomes, verification outcomes, and bounded journal counters.
+# No credentials, raw log messages, or Home Assistant service payloads are
+# included in the public Passport autonomy section.
