@@ -22,6 +22,16 @@ COPY issue_identity.py /app/connector/issue_identity.py
 COPY issue_priority.py /app/connector/issue_priority.py
 COPY health_report.py /app/connector/health_report.py
 COPY health_timeline.py /app/connector/health_timeline.py
+COPY action_registry.py /app/connector/action_registry.py
+COPY autonomy_runtime.py /app/connector/autonomy_runtime.py
+COPY operation_journal.py /app/connector/operation_journal.py
+COPY repair_executor.py /app/connector/repair_executor.py
+COPY repair_planner.py /app/connector/repair_planner.py
+COPY repair_verifier.py /app/connector/repair_verifier.py
+COPY safety_policy.py /app/connector/safety_policy.py
+
+RUN python3 -c "import sys; sys.path.insert(0, '/app'); import connector.autonomy_runtime, connector.action_registry, connector.operation_journal, connector.repair_executor, connector.repair_planner, connector.repair_verifier, connector.safety_policy"
+
 
 RUN touch /app/connector/__init__.py
 
