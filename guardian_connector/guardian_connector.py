@@ -384,13 +384,10 @@ def main() -> int:
                     f"{core_summary['system_log_available']}"
                 )
             except Exception as exc:
-                import traceback
-
                 print(
                     f"Guardian Core Diagnostics fallback: "
                     f"{type(exc).__name__}: {exc}"
                 )
-                traceback.print_exc()
 
             diagnostic_summary = passport[
                 "diagnostic_inventory"
