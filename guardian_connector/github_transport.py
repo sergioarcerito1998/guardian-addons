@@ -85,19 +85,29 @@ class GitHubTransport:
 
     def upload(self, passport_path: str | Path) -> dict[str, Any]:
         passport_path = Path(passport_path)
-        content = passport_path.read_bytes()
-        sha = self.get_remote_sha()
+        encoded_content = base64.b64encode(
+            passport_path.read_bytes()
+        ).decode("ascii")
 
-        payload: dict[str, Any] = {
-            "message": "chore: sync Guardian public passport",
-            "content": base64.b64encode(content).decode("ascii"),
-        }
+        def upload_current_version() -> dict[str, Any]:
+            sha = self.get_remote_sha()
 
-        if sha:
-            payload["sha"] = sha
+            payload: dict[str, Any] = {
+                "message": "chore: sync Guardian public passport",
+                "content": encoded_content,
+            }
+
+            if sha:
+                payload["sha"] = sha
+
+            return self._request(
+                "PUT",
+                self._contents_url(),
+                payload,
+            )
 
         return retry_with_backoff(
-            lambda: self._request("PUT", self._contents_url(), payload),
+            upload_current_version,
             attempts=5,
             base_delay=1.0,
             max_delay=30.0,

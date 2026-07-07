@@ -1,5 +1,5 @@
 name: Guardian Connector
-version: "0.13.0"
+version: "0.13.1"
 slug: guardian_connector
 image: "ghcr.io/sergioarcerito1998/guardian-connector-{arch}"
 description: Local read-only discovery and secure sync agent for Guardian

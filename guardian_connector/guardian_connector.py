@@ -259,7 +259,7 @@ def main() -> int:
                 )
 
                 health_state_path = (
-                    self.data_dir / "diagnostic-health-state.json"
+                    output.parent / "diagnostic-health-state.json"
                 )
 
                 health_state = load_health_state(health_state_path)
@@ -445,11 +445,21 @@ def main() -> int:
             if github_token and github_repository:
                 from connector.sync_runtime import flush_sync_queue
 
-                transport_result = flush_sync_queue(
-                    sync_pipeline.queue,
-                    github_token,
-                    github_repository,
-                )
+                try:
+                    transport_result = flush_sync_queue(
+                        sync_pipeline.queue,
+                        github_token,
+                        github_repository,
+                    )
+                except Exception as exc:
+                    transport_result = {
+                        "uploaded": 0,
+                        "remaining": len(sync_pipeline.queue.items()),
+                    }
+                    print(
+                        f"Guardian Sync deferred: "
+                        f"{type(exc).__name__}: {exc}"
+                    )
 
                 print(
                     f"Guardian Sync uploaded: {transport_result['uploaded']}"
